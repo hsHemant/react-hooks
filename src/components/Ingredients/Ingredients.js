@@ -15,10 +15,10 @@ function Ingredients() {
   };
 
   const removeUserIngredinets = id => {
-    setUserIngredients(userIngredients.filter(ig => ig.id !== id));
+    setUserIngredients(prevUserIngredients =>
+      prevUserIngredients.filter(ig => ig.id !== id)
+    );
   };
-
-  console.log(userIngredients);
 
   return (
     <div className="App">
