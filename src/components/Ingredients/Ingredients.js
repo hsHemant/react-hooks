@@ -10,9 +10,15 @@ function Ingredients() {
   const addUserIngredinets = ingredients => {
     setUserIngredients(prevUserIngredients => [
       ...prevUserIngredients,
-      { id: Math.random, ...ingredients }
+      { id: Math.random().toString(), ...ingredients }
     ]);
   };
+
+  const removeUserIngredinets = id => {
+    setUserIngredients(userIngredients.filter(ig => ig.id !== id));
+  };
+
+  console.log(userIngredients);
 
   return (
     <div className="App">
@@ -20,7 +26,10 @@ function Ingredients() {
 
       <section>
         <Search />
-        <IngredientList ingredients={userIngredients} onRemoveItem={() => {}} />
+        <IngredientList
+          ingredients={userIngredients}
+          onRemoveItem={removeUserIngredinets}
+        />
       </section>
     </div>
   );
