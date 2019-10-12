@@ -1,4 +1,4 @@
-import React, { useState, useReducer, useEffect, useCallback } from "react";
+import React, { useReducer, useEffect, useCallback } from "react";
 
 import IngredientForm from "./IngredientForm";
 import IngredientList from "./IngredientList";
@@ -36,7 +36,7 @@ const httpReducer = (httpState, action) => {
 function Ingredients() {
   const [userIngredientsState, dispatch] = useReducer(ingrdientsReducer, []);
   const [httpSate, dispatchHttp] = useReducer(httpReducer, {
-    loading: false,
+    loading: true,
     error: null
   });
 
@@ -73,10 +73,12 @@ function Ingredients() {
   };
 
   const removeIngredinetsHandler = id => {
+    dispatchHttp({ type: "SEND" });
     fetch(`https://react-hooks-c1de4.firebaseio.com/ingredients/${id}.json`, {
       method: "DELETE"
     })
       .then(responseData => {
+        dispatchHttp({ type: "RESPONSE" });
         dispatch({ type: "DELETE", id });
       })
       .catch(error =>
