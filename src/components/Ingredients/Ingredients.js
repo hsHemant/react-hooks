@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 import IngredientForm from "./IngredientForm";
 import IngredientList from "./IngredientList";
@@ -8,23 +8,17 @@ function Ingredients() {
   const [userIngredients, setUserIngredients] = useState([]);
 
   useEffect(() => {
-    fetch("https://react-hooks-c1de4.firebaseio.com/ingredients.json")
-      .then(response => response.json())
-      .then(responseData => {
-        const loadedIngredinets = [];
-        for (const key in responseData) {
-          loadedIngredinets.push({
-            id: key,
-            title: responseData[key].title,
-            amount: responseData[key].amount
-          });
-        }
-        console.log(loadedIngredinets);
-        setUserIngredients(loadedIngredinets);
-      });
-  }, []);
+    console.log("userIngredients chaneged");
+  }, [userIngredients]);
 
-  const addUserIngredinets = ingredients => {
+  const onLoadIngredientsHandler = useCallback(
+    loadedIngredinets => {
+      setUserIngredients(loadedIngredinets);
+    },
+    [setUserIngredients]
+  );
+
+  const addIngredinetsHandler = ingredients => {
     fetch("https://react-hooks-c1de4.firebaseio.com/ingredients.json", {
       method: "POST",
       body: JSON.stringify(ingredients),
@@ -40,7 +34,7 @@ function Ingredients() {
       });
   };
 
-  const removeUserIngredinets = id => {
+  const removeIngredinetsHandler = id => {
     setUserIngredients(prevUserIngredients =>
       prevUserIngredients.filter(ig => ig.id !== id)
     );
@@ -48,13 +42,13 @@ function Ingredients() {
 
   return (
     <div className="App">
-      <IngredientForm addIngredients={addUserIngredinets} />
+      <IngredientForm addIngredients={addIngredinetsHandler} />
 
       <section>
-        <Search />
+        <Search onLoadIngredients={onLoadIngredientsHandler} />
         <IngredientList
           ingredients={userIngredients}
-          onRemoveItem={removeUserIngredinets}
+          onRemoveItem={removeIngredinetsHandler}
         />
       </section>
     </div>
