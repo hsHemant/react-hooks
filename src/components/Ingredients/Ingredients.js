@@ -35,9 +35,13 @@ function Ingredients() {
   };
 
   const removeIngredinetsHandler = id => {
-    setUserIngredients(prevUserIngredients =>
-      prevUserIngredients.filter(ig => ig.id !== id)
-    );
+    fetch(`https://react-hooks-c1de4.firebaseio.com/ingredients/${id}.json`, {
+      method: "DELETE"
+    }).then(responseData => {
+      setUserIngredients(prevUserIngredients =>
+        prevUserIngredients.filter(ig => ig.id !== id)
+      );
+    });
   };
 
   return (
