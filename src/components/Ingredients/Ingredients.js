@@ -5,39 +5,53 @@ import IngredientList from "./IngredientList";
 import Search from "./Search";
 import ErrorModal from "../UI/ErrorModal";
 
-function ingrdientsReducer(currentIngrdients, action) {
+const ingrdientsReducer = (currentIngrdientsState, action) => {
   switch (action.type) {
     case "SET":
       return action.ingredients;
     case "ADD":
-      return [...currentIngrdients, action.ingredient];
+      return [...currentIngrdientsState, action.ingredient];
     case "DELETE":
-      return currentIngrdients.filter(ig => ig.id !== action.id);
+      return currentIngrdientsState.filter(ig => ig.id !== action.id);
     default:
       throw new Error();
   }
-}
+};
+
+const httpReducer = (httpState, action) => {
+  switch (action.type) {
+    case "SEND":
+      return { loading: true, error: null };
+    case "RESPONSE":
+      return { ...httpState, loading: false };
+    case "ERROR":
+      return { loading: true, error: action.errorData };
+    default:
+      throw new Error();
+  }
+};
 
 function Ingredients() {
-  const [userIngredients, dispatch] = useReducer(ingrdientsReducer, []);
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState();
+  const [userIngredientsState, dispatch] = useReducer(ingrdientsReducer, []);
+  const [httpSate, dispatchHttp] = useReducer(httpReducer, {
+    loading: false,
+    error: null
+  });
 
   useEffect(() => {
-    console.log("userIngredients chaneged");
-  }, [userIngredients]);
+    console.log("userIngredientsState chaneged");
+  }, [userIngredientsState]);
 
   const onLoadIngredientsHandler = useCallback(
     loadedIngredinets => {
-      setLoading(false);
+      dispatchHttp({ type: "RESPONSE" });
       dispatch({ type: "SET", ingredients: loadedIngredinets });
     },
     [dispatch]
   );
 
   const addIngredinetsHandler = ingredients => {
-    setLoading(true);
+    dispatchHttp({ type: "SEND" });
     fetch("https://react-hooks-c1de4.firebaseio.com/ingredients.json", {
       method: "POST",
       body: JSON.stringify(ingredients),
@@ -45,13 +59,15 @@ function Ingredients() {
     })
       .then(response => response.json())
       .then(responseData => {
-        setLoading(false);
+        dispatchHttp({ type: "RESPONSE" });
         dispatch({
           type: "ADD",
           ingredient: { id: responseData.name, ...ingredients }
         });
       })
-      .catch(error => setError(error.message));
+      .catch(error =>
+        dispatchHttp({ type: "ERROR", errorData: error.message })
+      );
   };
 
   const removeIngredinetsHandler = id => {
@@ -63,22 +79,24 @@ function Ingredients() {
   };
 
   const clearError = () => {
-    setError(null);
+    dispatchHttp({ type: "ERROR", errorData: null });
   };
 
   return (
     <div className="App">
-      {error && <ErrorModal onClose={clearError}>{error}</ErrorModal>}
+      {httpSate.error && (
+        <ErrorModal onClose={clearError}>{httpSate.error}</ErrorModal>
+      )}
 
       <IngredientForm
         addIngredients={addIngredinetsHandler}
-        loading={loading}
+        loading={httpSate.loading}
       />
 
       <section>
         <Search onLoadIngredients={onLoadIngredientsHandler} />
         <IngredientList
-          ingredients={userIngredients}
+          ingredients={userIngredientsState}
           onRemoveItem={removeIngredinetsHandler}
         />
       </section>
