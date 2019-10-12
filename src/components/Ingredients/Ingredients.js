@@ -25,7 +25,9 @@ const httpReducer = (httpState, action) => {
     case "RESPONSE":
       return { ...httpState, loading: false };
     case "ERROR":
-      return { loading: true, error: action.errorData };
+      return { loading: false, error: action.errorData };
+    case "CLEAR":
+      return { ...httpState, error: null };
     default:
       throw new Error();
   }
@@ -73,13 +75,17 @@ function Ingredients() {
   const removeIngredinetsHandler = id => {
     fetch(`https://react-hooks-c1de4.firebaseio.com/ingredients/${id}.json`, {
       method: "DELETE"
-    }).then(responseData => {
-      dispatch({ type: "DELETE", id });
-    });
+    })
+      .then(responseData => {
+        dispatch({ type: "DELETE", id });
+      })
+      .catch(error =>
+        dispatchHttp({ type: "ERROR", errorData: error.message })
+      );
   };
 
   const clearError = () => {
-    dispatchHttp({ type: "ERROR", errorData: null });
+    dispatchHttp({ type: "CLEAR" });
   };
 
   return (
