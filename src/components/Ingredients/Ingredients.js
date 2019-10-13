@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect, useCallback } from "react";
+import React, { useReducer, useEffect, useCallback, useMemo } from "react";
 
 import IngredientForm from "./IngredientForm";
 import IngredientList from "./IngredientList";
@@ -52,7 +52,7 @@ function Ingredients() {
     [dispatch]
   );
 
-  const addIngredinetsHandler = ingredients => {
+  const addIngredinetsHandler = useCallback(ingredients => {
     dispatchHttp({ type: "SEND" });
     fetch("https://react-hooks-c1de4.firebaseio.com/ingredients.json", {
       method: "POST",
@@ -70,9 +70,9 @@ function Ingredients() {
       .catch(error =>
         dispatchHttp({ type: "ERROR", errorData: error.message })
       );
-  };
+  }, []);
 
-  const removeIngredinetsHandler = id => {
+  const removeIngredinetsHandler = useCallback(id => {
     dispatchHttp({ type: "SEND" });
     fetch(`https://react-hooks-c1de4.firebaseio.com/ingredients/${id}.json`, {
       method: "DELETE"
@@ -84,7 +84,17 @@ function Ingredients() {
       .catch(error =>
         dispatchHttp({ type: "ERROR", errorData: error.message })
       );
-  };
+  }, []);
+
+  const IngredientsList = useMemo(
+    () => (
+      <IngredientList
+        ingredients={userIngredientsState}
+        onRemoveItem={removeIngredinetsHandler}
+      />
+    ),
+    [userIngredientsState, removeIngredinetsHandler]
+  );
 
   const clearError = () => {
     dispatchHttp({ type: "CLEAR" });
@@ -103,10 +113,7 @@ function Ingredients() {
 
       <section>
         <Search onLoadIngredients={onLoadIngredientsHandler} />
-        <IngredientList
-          ingredients={userIngredientsState}
-          onRemoveItem={removeIngredinetsHandler}
-        />
+        {IngredientsList}
       </section>
     </div>
   );
