@@ -31,7 +31,6 @@ const useHttp = () => {
       .then(response => response.json())
       .then(responseData => {
         dispatchHttp({ type: "RESPONSE", responseData: responseData });
-        // dispatch({ type: "DELETE", id });
       })
       .catch(error =>
         dispatchHttp({ type: "ERROR", errorData: error.message })
@@ -40,8 +39,8 @@ const useHttp = () => {
 
   return {
     isLoading: httpSate.loading,
-    data: httpSate.data,
     error: httpSate.error,
+    data: httpSate.data,
     sendRequest: sendRequest
   };
 };

@@ -21,7 +21,7 @@ const ingrdientsReducer = (currentIngrdientsState, action) => {
 
 function Ingredients() {
   const [userIngredientsState, dispatch] = useReducer(ingrdientsReducer, []);
-  const { isLoading, data, error, sendRequest } = useHttp();
+  const { isLoading, error, data, sendRequest } = useHttp();
 
   useEffect(() => {
     console.log("userIngredientsState chaneged");
